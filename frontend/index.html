@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学情分析系统</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <link rel="stylesheet" href="./src/assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="./src/assets/js/lib/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <h1>学情分析</h1>
+            </div>
+            <div class="header-buttons">
+                <button class="nav-btn" onclick="window.location.href='src/pages/teacher/teacher-login.html'">我是教师</button>
+                <button class="nav-btn" onclick="window.location.href='src/pages/student/student-login.html'">我是学生</button>
+                <button class="nav-btn" onclick="window.location.href='help-center.html'">帮助中心</button>
+                <button class="nav-btn" onclick="window.location.href='about.html'">关于我们</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 添加分隔线 -->
+    <div class="divider"></div>
+
+    <main class="container">
+        <section class="hero-section">
+            <h2 class="dynamic-slogan">掌握学习轨迹，点亮成长路径</h2>
+            <div class="role-buttons">
+                <!-- “我是教师”和“我是学生”按钮已移动到导航栏 -->
+            </div>
+            
+            <!-- 删除了 hero-background div -->
+        </section>
+        
+        <!-- 移动到页面底部的数据卡片 -->
+        <div class="data-cards">
+            <div class="data-card">
+                <h3>班级进步率</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 92%"></div>
+                </div>
+                <p class="percentage">92%</p>
+            </div>
+            <div class="data-card">
+                <h3>知识点覆盖率</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 78%"></div>
+                </div>
+                <p class="percentage">78%</p>
+            </div>
+            <div class="data-card">
+                <h3>预警处理率</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 85%"></div>
+                </div>
+                <p class="percentage">85%</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- 模态框 -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('modal')">&times;</span>
+            <h3 id="modal-title">添加学生</h3>
+            <form id="modal-form">
+                <input type="hidden" id="form-id">
+                <div class="form-group">
+                    <label for="name">姓名:</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="student-number">学号:</label>
+                    <input type="text" id="student-number" required>
+                </div>
+                <div class="form-group">
+                    <label for="class-name">班级:</label>
+                    <input type="text" id="class-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="gender">性别:</label>
+                    <select id="gender" required>
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="birth-date">出生日期:</label>
+                    <input type="date" id="birth-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="contact-info">联系方式:</label>
+                    <input type="text" id="contact-info">
+                </div>
+                <button type="submit" class="btn primary-btn">保存</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 登录模态框 -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('loginModal')">&times;</span>
+            <h3>用户登录</h3>
+            <form id="loginForm">
+                <div class="form-group">
+                    <input type="text" id="username" placeholder="用户名" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" placeholder="密码" required>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="radio" name="role" value="teacher" checked> 教师
+                    </label>
+                    <label>
+                        <input type="radio" name="role" value="student"> 学生
+                    </label>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn primary-btn">登录</button>
+                </div>
+            </form>
+            <div class="form-links">
+                <a href="#" onclick="handleForgotPassword(event)" class="form-link">忘记密码</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 忘记密码模态框 -->
+    <div id="forgotPasswordModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('forgotPasswordModal')">&times;</span>
+            <h3>忘记密码</h3>
+            <form id="forgotPasswordForm">
+                <div class="form-group">
+                    <input type="email" id="resetEmail" placeholder="邮箱地址" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn primary-btn">发送验证码</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 重置密码模态框 -->
+    <div id="resetPasswordModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('resetPasswordModal')">&times;</span>
+            <h3>重置密码</h3>
+            <form id="resetPasswordForm">
+                <div class="form-group">
+                    <input type="password" id="newPassword" placeholder="新密码" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="confirmPassword" placeholder="确认密码" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn primary-btn">重置密码</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+
+
+    <footer>
+        <div class="container">
+            <p class="system-description">数据驱动教学决策·AI赋能个性化学习</p>
+            <p>&copy; 2023 学情分析系统. 保留所有权利.</p>
+            <p class="support-info">技术支持单位：XXX科技有限公司</p></div>
+        </div>
+    </footer>
+    
+    <!-- 原本在hero-section中的数据卡片已移动到此处 -->
+    
+
+
+    <script>
+        // 全局API基础URL - 使用相对路径解决Trae CN部署问题
+        window.API_URL = '/api';
+    </script>
+    <script src="./src/assets/js/main.js"></script>
+    <script src="./src/assets/js/analytics.js"></script>
+    <script>
+        // 打开登录模态框
+        function openLoginModal() {
+            const modal = document.getElementById('loginModal');
+            modal.style.display = 'block';
+            
+            // 添加下滑动画效果
+            const modalContent = modal.querySelector('.modal-content');
+            modalContent.style.transform = 'translateY(-50px)';
+            modalContent.style.opacity = '0';
+            
+            // 触发动画
+            setTimeout(() => {
+                modalContent.style.transition = 'all 0.3s ease';
+                modalContent.style.transform = 'translateY(0)';
+                modalContent.style.opacity = '1';
+            }, 10);
+        }
+
+        // 关闭模态框
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            const modalContent = modal.querySelector('.modal-content');
+            
+            // 添加关闭动画
+            modalContent.style.transform = 'translateY(50px)';
+            modalContent.style.opacity = '0';
+            
+            // 延迟隐藏模态框
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+
+        // 处理登录
+        function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const role = document.querySelector('input[name="role"]:checked').value;
+
+            // 简单验证
+            if (username && password) {
+                // 准备登录数据
+                const loginData = {
+                    username: username,
+                    password: password
+                };
+
+                // 发送登录请求到后端
+                fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(loginData)
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('登录失败');
+                    }
+                })
+                .then(data => {
+                    if (data.token) {
+                        // 存储JWT令牌
+                        localStorage.setItem('token', data.token);
+                        // 存储用户信息
+                        localStorage.setItem('user', JSON.stringify(data));
+                        
+                        // 根据角色跳转到不同页面
+                        switch (role) {
+                            case 'teacher':
+                                window.location.href = 'dashboard.html';
+                                break;
+                            case 'student':
+                                window.location.href = 'student-login.html';
+                                break;
+                            case 'admin':
+                                window.location.href = 'admin.html';
+                                break;
+                            default:
+                                alert('请选择角色');
+                        }
+                    } else {
+                        alert('登录失败: 无效的响应');
+                    }
+                })
+                .catch(error => {
+                    console.error('登录错误:', error);
+                    alert('登录失败: ' + error.message);
+                });
+            } else {
+                alert('请输入用户名和密码');
+            }
+        }
+
+        // 处理忘记密码
+        function handleForgotPassword(event) {
+            event.preventDefault();
+            const modal = document.getElementById('loginModal');
+            const forgotPasswordModal = document.getElementById('forgotPasswordModal');
+            
+            // 关闭登录模态框，打开忘记密码模态框
+            closeModal('loginModal');
+            
+            setTimeout(() => {
+                forgotPasswordModal.style.display = 'block';
+                const modalContent = forgotPasswordModal.querySelector('.modal-content');
+                modalContent.style.transform = 'translateY(-50px)';
+                modalContent.style.opacity = '0';
+                
+                setTimeout(() => {
+                    modalContent.style.transition = 'all 0.3s ease';
+                    modalContent.style.transform = 'translateY(0)';
+                    modalContent.style.opacity = '1';
+                }, 10);
+            }, 300);
+        }
+
+        // 处理发送验证码
+        function handleSendVerificationCode(event) {
+            event.preventDefault();
+            const email = document.getElementById('resetEmail').value;
+            if (email) {
+                // 这里应该发送请求到后端发送验证码
+                console.log('发送验证码到:', email);
+                alert(`验证码已发送到 ${email}`);
+            } else {
+                alert('请输入邮箱地址');
+            }
+        }
+
+        // 处理重置密码
+        function handleResetPassword(event) {
+            event.preventDefault();
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (newPassword && confirmPassword) {
+                if (newPassword === confirmPassword) {
+                    // 这里应该发送请求到后端重置密码
+                    console.log('密码已重置');
+                    alert('密码重置成功');
+                    
+                    // 关闭模态框
+                    closeModal('forgotPasswordModal');
+                } else {
+                    alert('两次输入的密码不一致');
+                }
+            } else {
+                alert('请输入新密码和确认密码');
+            }
+        }
+
+
+
+        // 预览区切换功能
+        let currentSlide = 0;
+        const previewSlides = document.querySelectorAll('.preview-slide');
+        
+        function showSlide(index) {
+            previewSlides.forEach((slide, i) => {
+                slide.style.transform = `translateX(${(i - index) * 100}%)`;
+            });
+        }
+        
+
+        
+        // 自动轮播
+        setInterval(() => {
+            currentSlide = (currentSlide + 1) % previewSlides.length;
+            showSlide(currentSlide);
+        }, 5000);
+
+        // 渲染预览区图表
+        function renderPreviewCharts() {
+            // 检查是否有预览区域元素
+            const previewSection = document.querySelector('.preview-section');
+            if (!previewSection) {
+                console.log('预览区图表渲染已禁用 - 未找到预览区域');
+                return;
+            }
+            
+            // 如果有预览区域，可以在这里添加图表渲染逻辑
+            console.log('预览区图表渲染完成');
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderPreviewCharts(); // 渲染预览区图表
+            
+            // 绑定事件
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('forgotPasswordForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const email = document.getElementById('resetEmail').value;
+                if (email) {
+                    // 这里应该发送请求到后端发送验证码
+                    console.log('发送验证码到:', email);
+                    alert(`验证码已发送到 ${email}`);
+                    
+                    // 关闭忘记密码模态框，打开重置密码模态框
+                    closeModal('forgotPasswordModal');
+                    
+                    setTimeout(() => {
+                        document.getElementById('resetPasswordModal').style.display = 'block';
+                        const modalContent = document.getElementById('resetPasswordModal').querySelector('.modal-content');
+                        modalContent.style.transform = 'translateY(-50px)';
+                        modalContent.style.opacity = '0';
+                        
+                        setTimeout(() => {
+                            modalContent.style.transition = 'all 0.3s ease';
+                            modalContent.style.transform = 'translateY(0)';
+                            modalContent.style.opacity = '1';
+                        }, 10);
+                    }, 300);
+                } else {
+                    alert('请输入邮箱地址');
+                }
+            });
+            document.getElementById('resetPasswordForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                if (newPassword && confirmPassword) {
+                    if (newPassword === confirmPassword) {
+                        // 这里应该发送请求到后端重置密码
+                        console.log('密码已重置');
+                        alert('密码重置成功');
+                        
+                        // 关闭模态框
+                        closeModal('resetPasswordModal');
+                    } else {
+                        alert('两次输入的密码不一致');
+                    }
+                } else {
+                    alert('请输入新密码和确认密码');
+                }
+            });
+            
+            // 教师和学生按钮已删除，不再绑定事件
+            
+            // 初始化预览区
+            showSlide(currentSlide);
+        });
+    </script>
+</body>
+</html>

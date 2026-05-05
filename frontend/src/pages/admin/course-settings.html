@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程设置 - 学情分析系统</title>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>学情分析系统</h1>
+            <nav>
+                <ul>
+                    <li><a href="dashboard.html">主页</a></li>
+                    <li><a href="student-management.html">学生管理</a></li>
+                    <li><a href="grade-analysis.html">成绩分析</a></li>
+                    <li><a href="course-settings.html" class="active">课程设置</a></li>
+                    <li><a href="index.html" id="logout-link">退出登录</a></li>
+                </ul>
+            </nav>
+        </header>
+        
+        <main>
+            <section class="welcome-section">
+                <h2>课程设置</h2>
+                <p>在这里您可以管理课程相关信息。</p>
+            </section>
+            
+            <section class="dashboard">
+                <div class="card">
+                    <h3>当前课程</h3>
+                    <p>课程名称: 数学分析</p>
+                    <p>授课教师: 张老师</p>
+                    <p>学期: 2023年秋季</p>
+                </div>
+                
+                <div class="card">
+                    <h3>课程操作</h3>
+                    <p>您可以执行以下操作：</p>
+                    <ul>
+                        <li><a href="#">编辑课程信息</a></li>
+                        <li><a href="#">添加课程资料</a></li>
+                        <li><a href="#">设置考核方式</a></li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+        
+        <footer>
+            <p>&copy; 2023 学情分析系统. All rights reserved.</p>
+        </footer>
+    </div>
+    
+    <script>
+        // 检查用户是否已登录
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            
+            if (!user || !user.token) {
+                // 用户未登录，跳转到登录页面
+                alert('请先登录');
+                window.location.href = 'teacher-login.html';
+                return;
+            }
+            
+            // 退出登录功能
+            document.getElementById('logout-link').addEventListener('click', function(event) {
+                event.preventDefault();
+                // 清除本地存储的用户信息
+                localStorage.removeItem('user');
+                localStorage.removeItem('token');
+                // 跳转到登录页面
+                window.location.href = 'teacher-login.html';
+            });
+        });
+    </script>
+</body>
+</html>

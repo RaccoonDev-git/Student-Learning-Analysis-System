@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>学生登录 - 学情分析系统</title>
+    <link rel="stylesheet" href="../../assets/css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+  </head>
+  <body>
+    <header>
+      <div class="container header-container">
+        <div class="logo">
+          <h1>学情分析</h1>
+        </div>
+        <div class="header-buttons">
+          <button
+            class="nav-btn"
+            onclick="window.location.href='../../../index.html'"
+          >
+            返回首页
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="login-container">
+        <section class="login-section">
+          <h2>学生登录</h2>
+          <form id="student-login-form">
+            <div class="form-group">
+              <input
+                type="text"
+                id="student-username"
+                placeholder="账号"
+                required
+              />
+            </div>
+            <div class="form-group password-container">
+              <input
+                type="password"
+                id="student-password"
+                placeholder="密码"
+                required
+              />
+              <span
+                class="toggle-password"
+                onclick="togglePasswordVisibility('student-password')"
+              >
+                <i class="fas fa-eye"></i>
+              </span>
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn primary-btn">登录</button>
+            </div>
+          </form>
+          <div class="form-links">
+            <a href="student-register-step1.html" class="form-link"
+              >注册新账号</a
+            >
+            <a
+              href="../../forgot-password.html?from=student"
+              id="forgot-password-link"
+              class="form-link"
+              >忘记密码</a
+            >
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <p class="system-description">数据驱动教学决策·AI赋能个性化学习</p>
+        <p>&copy; 2023 学情分析系统. 保留所有权利.</p>
+        <p class="support-info">技术支持单位：XXX科技有限公司</p>
+      </div>
+    </footer>
+
+    <script>
+      // API基础URL - 通过前端代理访问后端API
+      const API_URL = "/api";
+
+      // 切换密码可见性
+      function togglePasswordVisibility(inputId) {
+        const passwordInput = document.getElementById(inputId);
+        const toggleIcon = passwordInput.nextElementSibling.querySelector("i");
+
+        if (passwordInput.type === "password") {
+          passwordInput.type = "text";
+          toggleIcon.classList.remove("fa-eye");
+          toggleIcon.classList.add("fa-eye-slash");
+        } else {
+          passwordInput.type = "password";
+          toggleIcon.classList.remove("fa-eye-slash");
+          toggleIcon.classList.add("fa-eye");
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const loginForm = document.getElementById("student-login-form");
+
+        // 设置默认测试用户名和密码
+        document.getElementById("student-username").value = "student1";
+        document.getElementById("student-password").value = "password123";
+
+        if (loginForm) {
+          loginForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const username = document.getElementById("student-username").value;
+            const password = document.getElementById("student-password").value;
+
+            // 简单验证
+            if (username && password) {
+              // 准备登录数据
+              const loginData = {
+                username: username,
+                password: password,
+              };
+
+              // 发送登录请求到后端
+              console.log("发送登录请求到:", `${API_URL}/auth/login`);
+              console.log("请求数据:", loginData);
+
+              fetch(`${API_URL}/auth/login`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(loginData),
+              })
+                .then((response) => {
+                  console.log("收到响应:", response);
+                  if (response.ok) {
+                    return response.json();
+                  } else {
+                    throw new Error("登录失败");
+                  }
+                })
+                .then((data) => {
+                  if (data.token) {
+                    // 存储JWT令牌
+                    localStorage.setItem("token", data.token);
+                    // 存储用户信息
+                    localStorage.setItem("user", JSON.stringify(data));
+
+                    // 登录成功后跳转到学生主页
+                    alert("登录成功");
+                    window.location.href = "student.html";
+                  } else {
+                    alert("登录失败: 无效的响应");
+                  }
+                })
+                .catch((error) => {
+                  console.error("登录错误:", error);
+                  alert("登录失败: " + error.message);
+                });
+            } else {
+              alert("请填写账号和密码");
+            }
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

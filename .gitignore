@@ -1,0 +1,225 @@
+# =============================================
+# 学生学习情况分析系统 - Git 忽略文件
+# =============================================
+
+# =============================================
+# Java / Maven / Spring Boot
+# =============================================
+backend/target/
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+*.class
+*.jar
+!backend/.mvn/wrapper/maven-wrapper.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Log files
+backend/logs/
+*.log
+*.log.*
+
+# Spring Boot specific
+backend/HELP.md
+backend/.apt_generated
+backend/.classpath
+backend/.factorypath
+backend/.project
+backend/.settings
+backend/.springBeans
+backend/.sts4-cache
+
+# =============================================
+# Python / Flask
+# =============================================
+frontend/__pycache__/
+frontend/*.py[cod]
+frontend/*$py.class
+frontend/.Python
+frontend/env/
+frontend/venv/
+frontend/ENV/
+frontend/env.bak/
+frontend/venv.bak/
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Flask instance folder
+frontend/instance/
+frontend/.webassets-cache
+
+# =============================================
+# IDE / Editor
+# =============================================
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# Eclipse
+.metadata
+.classpath
+.project
+.settings/
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+
+# VS Code
+.vscode/
+*.code-workspace
+.history/
+
+# NetBeans
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+build/
+
+# =============================================
+# Operating System
+# =============================================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Linux
+*~
+.directory
+.Trash-*
+.nfs*
+
+# =============================================
+# Database
+# =============================================
+*.db
+*.sqlite
+*.sqlite3
+*.sql.backup
+*.sql.bak
+
+# =============================================
+# Node.js (if used)
+# =============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# =============================================
+# Compiled files
+# =============================================
+*.com
+*.dll
+*.exe
+*.o
+*.so
+*.dylib
+
+# =============================================
+# Temporary files
+# =============================================
+*.cache
+*.temp
+*.tmp
+temp/
+tmp/
+
+# =============================================
+# Environment & Configuration
+# =============================================
+.env
+.env.local
+.env.*.local
+*.env
+application-local.properties
+application-dev.properties
+
+# =============================================
+# Test Coverage
+# =============================================
+coverage/
+.nyc_output/
+*.lcov
+
+# =============================================
+# Build outputs
+# =============================================
+dist/
+build/
+*.min.js
+*.min.css
+
+# =============================================
+# Security - Never commit these!
+# =============================================
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+credentials/
+
+# =============================================
+# Project specific
+# =============================================
+# 保留数据库脚本但忽略本地配置
+database/local-config.properties
+database/*.backup
+
+# 忽略上传的文件
+uploads/
+upload/
+
+# 忽略生成的文档
+docs/generated/
+
+# 忽略本地配置
+config/local/

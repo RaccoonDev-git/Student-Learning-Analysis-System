@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学习分析 - 学生端</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .analysis-card {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .analysis-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: none; /* 默认隐藏所有卡片 */
+        }
+
+        .analysis-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .card-icon.overview { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .card-icon.progress { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .card-icon.subject { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .card-icon.behavior { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+        .card-icon.comparison { background: linear-gradient(135deg, #fa709a, #fee140); }
+        .card-icon.social { background: linear-gradient(135deg, #a8edea, #fed6e3); }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .card-subtitle {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+        }
+
+        .suggestions {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .suggestions h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .suggestions h4 i {
+            margin-right: 10px;
+        }
+
+        .suggestion-list {
+            list-style: none;
+        }
+
+        .suggestion-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+            color: #555;
+        }
+
+        .suggestion-list li:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-list li:before {
+            content: "💡";
+            margin-right: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #c33;
+        }
+
+        .achievement-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #333;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin: 2px;
+        }
+
+        .ranking-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .ranking-position {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .ranking-info {
+            flex: 1;
+            margin-left: 15px;
+        }
+
+        .ranking-title {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .ranking-detail {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .analysis-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-chart-line"></i> 学习分析中心</h1>
+            <p>全面了解你的学习状况，制定个性化学习计划</p>
+        </div>
+
+        <div class="analysis-grid">
+            <!-- 综合分析 -->
+            <div class="analysis-card" id="comprehensive-analysis">
+                <div class="card-header">
+                    <div class="card-icon overview">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <div>
+                        <div class="card-title">综合分析</div>
+                        <div class="card-subtitle">学习状况总览</div>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="stats-grid" id="comprehensive-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="avg-score">--</div>
+                            <div class="stat-label">平均分</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="total-courses">--</div>
+                            <div class="stat-label">总课程</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="class-rank">--</div>
+                            <div class="stat-label">班级排名</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="comprehensive-chart"></canvas>
+                    </div>
+                    <div class="suggestions" id="comprehensive-suggestions">
+                        <h4><i class="fas fa-lightbulb"></i> 学习建议</h4>
+                        <ul class="suggestion-list" id="comprehensive-suggestions-list">
+                            <li>正在分析中...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 科目分析 -->
+            <div class="analysis-card" id="subject-analysis">
+                <div class="card-header">
+                    <div class="card-icon subject">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div>
+                        <div class="card-title">科目分析</div>
+                        <div class="card-subtitle">各科目表现分析</div>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container">
+                        <canvas id="subject-chart"></canvas>
+                    </div>
+                    <div class="suggestions" id="subject-suggestions">
+                        <h4><i class="fas fa-graduation-cap"></i> 科目建议</h4>
+                        <ul class="suggestion-list" id="subject-suggestions-list">
+                            <li>正在分析中...</li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-secondary" onclick="loadSubjectAnalysis()">
+                        <i class="fas fa-search"></i> 分析科目
+                    </button>
+                </div>
+            </div>
+
+            <!-- 学习行为 -->
+            <div class="analysis-card" id="learning-behavior">
+                <div class="card-header">
+                    <div class="card-icon behavior">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div>
+                        <div class="card-title">学习行为</div>
+                        <div class="card-subtitle">学习模式与习惯</div>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="stats-grid" id="behavior-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="activity-score">--</div>
+                            <div class="stat-label">活跃度</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="study-time">--</div>
+                            <div class="stat-label">学习时长</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="efficiency">--</div>
+                            <div class="stat-label">效率</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="behavior-chart"></canvas>
+                    </div>
+                    <button class="btn btn-success" onclick="loadLearningBehavior()">
+                        <i class="fas fa-chart-bar"></i> 分析行为
+                    </button>
+                </div>
+            </div>
+
+            <!-- 对比分析 -->
+            <div class="analysis-card" id="comparison-analysis">
+                <div class="card-header">
+                    <div class="card-icon comparison">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div>
+                        <div class="card-title">对比分析</div>
+                        <div class="card-subtitle">排名与对比</div>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div id="ranking-list">
+                        <div class="ranking-item">
+                            <div class="ranking-position">#5</div>
+                            <div class="ranking-info">
+                                <div class="ranking-title">班级排名</div>
+                                <div class="ranking-detail">在30人中排名第5</div>
+                            </div>
+                        </div>
+                        <div class="ranking-item">
+                            <div class="ranking-position">#12</div>
+                            <div class="ranking-info">
+                                <div class="ranking-title">专业排名</div>
+                                <div class="ranking-detail">在120人中排名第12</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="loadComparisonAnalysis()">
+                        <i class="fas fa-chart-line"></i> 更新排名
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let currentStudentId = null;
+        let charts = {};
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+        });
+
+        // 初始化页面
+        async function initializePage() {
+            try {
+                // 获取当前学生ID
+                currentStudentId = getCurrentStudentId();
+                if (!currentStudentId) {
+                    showError('无法获取学生信息，请重新登录');
+                    return;
+                }
+
+                // 根据URL hash参数显示对应的分析模块
+                const hash = window.location.hash.substring(1); // 移除#号
+                await showAnalysisModule(hash || 'comprehensive'); // 默认显示综合分析
+            } catch (error) {
+                console.error('页面初始化失败:', error);
+                showError('页面初始化失败: ' + error.message);
+            }
+        }
+
+        // 获取当前学生ID
+        function getCurrentStudentId() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) return null;
+                
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                return payload.userId || payload.sub;
+            } catch (error) {
+                console.error('获取学生ID失败:', error);
+                return null;
+            }
+        }
+
+        // 显示指定的分析模块
+        async function showAnalysisModule(moduleType) {
+            try {
+                // 隐藏所有分析卡片
+                hideAllAnalysisCards();
+                
+                // 根据模块类型显示对应的卡片并加载数据
+                switch(moduleType) {
+                    case 'comprehensive':
+                        showAnalysisCard('comprehensive-analysis');
+                        await loadComprehensiveAnalysis();
+                        break;
+                    case 'subject':
+                        showAnalysisCard('subject-analysis');
+                        await loadSubjectAnalysis();
+                        break;
+                    case 'behavior':
+                        showAnalysisCard('learning-behavior');
+                        await loadLearningBehavior();
+                        break;
+                    case 'comparison':
+                        showAnalysisCard('comparison-analysis');
+                        await loadComparisonAnalysis();
+                        break;
+                    default:
+                        // 默认显示综合分析
+                        showAnalysisCard('comprehensive-analysis');
+                        await loadComprehensiveAnalysis();
+                }
+            } catch (error) {
+                console.error('显示分析模块失败:', error);
+                showError('显示分析模块失败: ' + error.message);
+            }
+        }
+
+        // 隐藏所有分析卡片
+        function hideAllAnalysisCards() {
+            const cards = [
+                'comprehensive-analysis',
+                'subject-analysis',
+                'learning-behavior',
+                'comparison-analysis',
+            ];
+            
+            cards.forEach(cardId => {
+                const card = document.getElementById(cardId);
+                if (card) {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // 显示指定的分析卡片
+        function showAnalysisCard(cardId) {
+            const card = document.getElementById(cardId);
+            if (card) {
+                card.style.display = 'block';
+            }
+        }
+
+        // 加载综合分析
+        async function loadComprehensiveAnalysis() {
+            try {
+                showLoading('comprehensive-analysis');
+                
+                // 获取学生成绩数据
+                const response = await fetch(`/api/students/${currentStudentId}/scores`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayComprehensiveAnalysis(data.data);
+                } else {
+                    // 如果API失败，使用模拟数据
+                    displayComprehensiveAnalysis(generateMockComprehensiveData());
+                }
+            } catch (error) {
+                console.error('加载综合分析失败:', error);
+                // 使用模拟数据
+                displayComprehensiveAnalysis(generateMockComprehensiveData());
+            }
+        }
+
+        // 生成模拟综合分析数据
+        function generateMockComprehensiveData() {
+            return {
+                averageScore: 85.6,
+                totalCourses: 8,
+                classRank: 12,
+                gradeDistribution: {
+                    '优秀(90-100)': 3,
+                    '良好(80-89)': 4,
+                    '中等(70-79)': 1,
+                    '及格(60-69)': 0,
+                    '不及格(<60)': 0
+                },
+                subjectScores: {
+                    '高等数学': 88,
+                    '线性代数': 92,
+                    'C语言程序设计': 85,
+                    '大学物理': 82,
+                    '大学英语': 90,
+                    '数据结构': 87,
+                    '操作系统': 83,
+                    '计算机网络': 89
+                },
+                trends: {
+                    labels: ['第1周', '第2周', '第3周', '第4周', '第5周', '第6周', '第7周', '第8周'],
+                    scores: [78, 82, 85, 87, 86, 89, 91, 88]
+                }
+            };
+        }
+
+        // 生成综合分析建议
+        function generateComprehensiveSuggestions(data) {
+            const suggestions = [];
+            const avgScore = data.averageScore;
+            
+            if (avgScore >= 90) {
+                suggestions.push('成绩优秀，继续保持学习状态');
+                suggestions.push('可以尝试更有挑战性的学习内容');
+            } else if (avgScore >= 80) {
+                suggestions.push('成绩良好，继续保持努力');
+                suggestions.push('重点关注薄弱科目，提升整体水平');
+            } else if (avgScore >= 70) {
+                suggestions.push('成绩中等，需要加强学习');
+                suggestions.push('建议制定详细的学习计划');
+            } else {
+                suggestions.push('成绩需要提升，建议寻求帮助');
+                suggestions.push('重点关注基础知识的掌握');
+            }
+            
+            // 基于科目成绩给出建议
+            const subjectScores = data.subjectScores;
+            const lowestSubject = Object.entries(subjectScores).reduce((min, [subject, score]) => 
+                score < min.score ? {subject, score} : min, {subject: '', score: 100});
+            
+            if (lowestSubject.score < 80) {
+                suggestions.push(`${lowestSubject.subject}成绩较低，需要重点关注`);
+            }
+            
+            return suggestions;
+        }
+
+        // 显示综合分析数据
+        function displayComprehensiveAnalysis(data) {
+            // 更新统计数据
+            document.getElementById('avg-score').textContent = data.averageScore || '--';
+            document.getElementById('total-courses').textContent = data.totalCourses || '--';
+            document.getElementById('class-rank').textContent = data.comparison?.classRank || '--';
+
+            // 更新建议（基于数据分析的普通建议）
+            const suggestionsList = document.getElementById('comprehensive-suggestions-list');
+            suggestionsList.innerHTML = '';
+            
+            const suggestions = generateComprehensiveSuggestions(data);
+            suggestions.forEach(suggestion => {
+                const li = document.createElement('li');
+                li.textContent = suggestion;
+                suggestionsList.appendChild(li);
+            });
+
+            // 创建图表
+            createComprehensiveChart(data);
+        }
+
+        // 创建综合分析图表
+        function createComprehensiveChart(data) {
+            const ctx = document.getElementById('comprehensive-chart').getContext('2d');
+            
+            if (charts.comprehensive) {
+                charts.comprehensive.destroy();
+            }
+
+            charts.comprehensive = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(data.gradeDistribution || {}),
+                    datasets: [{
+                        label: '成绩分布',
+                        data: Object.values(data.gradeDistribution || {}),
+                        backgroundColor: [
+                            '#4CAF50', // 优秀 - 绿色
+                            '#2196F3', // 良好 - 蓝色
+                            '#FF9800', // 中等 - 橙色
+                            '#F44336', // 及格 - 红色
+                            '#9E9E9E'  // 不及格 - 灰色
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '成绩分布图',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // 如果有科目成绩数据，创建科目成绩柱状图
+            if (data.subjectScores) {
+                createSubjectScoresChart(data.subjectScores);
+            }
+        }
+
+        // 创建科目成绩柱状图
+        function createSubjectScoresChart(subjectScores) {
+            // 在综合分析卡片中添加科目成绩图表
+            const card = document.getElementById('comprehensive-analysis');
+            let chartContainer = card.querySelector('#subject-scores-chart');
+            
+            if (!chartContainer) {
+                chartContainer = document.createElement('div');
+                chartContainer.id = 'subject-scores-chart';
+                chartContainer.className = 'chart-container';
+                chartContainer.style.marginTop = '20px';
+                card.querySelector('.card-content').appendChild(chartContainer);
+            }
+            
+            const canvas = document.createElement('canvas');
+            canvas.id = 'subject-scores-canvas';
+            chartContainer.innerHTML = '';
+            chartContainer.appendChild(canvas);
+            
+            const ctx = canvas.getContext('2d');
+            
+            if (charts.subjectScores) {
+                charts.subjectScores.destroy();
+            }
+
+            const subjects = Object.keys(subjectScores);
+            const scores = Object.values(subjectScores);
+            
+            charts.subjectScores = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: subjects,
+                    datasets: [{
+                        label: '成绩',
+                        data: scores,
+                        backgroundColor: scores.map(score => 
+                            score >= 90 ? '#4CAF50' : 
+                            score >= 80 ? '#2196F3' : 
+                            score >= 70 ? '#FF9800' : '#F44336'
+                        ),
+                        borderColor: '#fff',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '各科目成绩',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+
+        // 加载科目分析
+        async function loadSubjectAnalysis() {
+            try {
+                showLoading('subject-analysis');
+                
+                // 这里可以添加科目选择逻辑
+                const subject = '数据结构'; // 默认科目
+                
+                const response = await fetch(`/api/student-analysis/subject-analysis/${currentStudentId}?subject=${subject}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    displaySubjectAnalysis(data.data);
+                } else {
+                    throw new Error(data.error || '获取科目分析失败');
+                }
+            } catch (error) {
+                console.error('加载科目分析失败:', error);
+                showError('加载科目分析失败: ' + error.message);
+            }
+        }
+
+        // 显示科目分析数据
+        function displaySubjectAnalysis(data) {
+            // 更新建议
+            const suggestionsList = document.getElementById('subject-suggestions-list');
+            suggestionsList.innerHTML = '';
+            if (data.subjectSuggestions && data.subjectSuggestions.length > 0) {
+                data.subjectSuggestions.forEach(suggestion => {
+                    const li = document.createElement('li');
+                    li.textContent = suggestion;
+                    suggestionsList.appendChild(li);
+                });
+            } else {
+                suggestionsList.innerHTML = '<li>暂无建议</li>';
+            }
+
+            // 创建图表
+            createSubjectChart(data);
+        }
+
+        // 创建科目分析图表
+        function createSubjectChart(data) {
+            const ctx = document.getElementById('subject-chart').getContext('2d');
+            
+            if (charts.subject) {
+                charts.subject.destroy();
+            }
+
+            // 模拟科目成绩数据
+            const subjectData = {
+                labels: ['作业', '实验', '期中', '期末'],
+                datasets: [{
+                    label: '成绩',
+                    data: [88, 92, 85, 90],
+                    backgroundColor: [
+                        'rgba(102, 126, 234, 0.8)',
+                        'rgba(118, 75, 162, 0.8)',
+                        'rgba(240, 147, 251, 0.8)',
+                        'rgba(245, 87, 108, 0.8)'
+                    ],
+                    borderColor: [
+                        '#667eea',
+                        '#764ba2',
+                        '#f093fb',
+                        '#f5576c'
+                    ],
+                    borderWidth: 2
+                }]
+            };
+
+            charts.subject = new Chart(ctx, {
+                type: 'bar',
+                data: subjectData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '科目成绩分布',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // 加载学习行为分析
+        async function loadLearningBehavior() {
+            try {
+                showLoading('learning-behavior');
+                
+                const response = await fetch(`/api/student-analysis/learning-behavior/${currentStudentId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayLearningBehavior(data.data);
+                } else {
+                    throw new Error(data.error || '获取学习行为分析失败');
+                }
+            } catch (error) {
+                console.error('加载学习行为分析失败:', error);
+                showError('加载学习行为分析失败: ' + error.message);
+            }
+        }
+
+        // 显示学习行为数据
+        function displayLearningBehavior(data) {
+            // 更新统计数据
+            document.getElementById('activity-score').textContent = 
+                data.learningActivity?.activityScore || '--';
+            document.getElementById('study-time').textContent = 
+                data.learningPattern?.averageStudyDuration || '--';
+            document.getElementById('efficiency').textContent = 
+                (data.learningEfficiency?.efficiencyScore * 100 || 0).toFixed(0) + '%';
+
+            // 创建图表
+            createBehaviorChart(data);
+        }
+
+        // 创建学习行为图表
+        function createBehaviorChart(data) {
+            const ctx = document.getElementById('behavior-chart').getContext('2d');
+            
+            if (charts.behavior) {
+                charts.behavior.destroy();
+            }
+
+            // 模拟学习活跃度数据
+            const activityData = {
+                labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                datasets: [{
+                    label: '学习活跃度',
+                    data: [85, 92, 78, 88, 95, 45, 30],
+                    backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                    borderColor: '#667eea',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            };
+
+            charts.behavior = new Chart(ctx, {
+                type: 'line',
+                data: activityData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '一周学习活跃度',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // 加载对比分析
+        async function loadComparisonAnalysis() {
+            try {
+                showLoading('comparison-analysis');
+                
+                const response = await fetch(`/api/student-analysis/comparison/${currentStudentId}?comparisonType=class`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayComparisonAnalysis(data.data);
+                } else {
+                    throw new Error(data.error || '获取对比分析失败');
+                }
+            } catch (error) {
+                console.error('加载对比分析失败:', error);
+                showError('加载对比分析失败: ' + error.message);
+            }
+        }
+
+        // 显示对比分析数据
+        function displayComparisonAnalysis(data) {
+            // 更新排名信息
+            const rankingList = document.getElementById('ranking-list');
+            rankingList.innerHTML = '';
+
+            if (data.classRanking) {
+                const classRanking = data.classRanking;
+                const classItem = document.createElement('div');
+                classItem.className = 'ranking-item';
+                classItem.innerHTML = `
+                    <div class="ranking-position">#${classRanking.currentRank}</div>
+                    <div class="ranking-info">
+                        <div class="ranking-title">班级排名</div>
+                        <div class="ranking-detail">在${classRanking.totalStudents}人中排名第${classRanking.currentRank}</div>
+                    </div>
+                `;
+                rankingList.appendChild(classItem);
+            }
+
+            if (data.majorRanking) {
+                const majorRanking = data.majorRanking;
+                const majorItem = document.createElement('div');
+                majorItem.className = 'ranking-item';
+                majorItem.innerHTML = `
+                    <div class="ranking-position">#${majorRanking.currentRank}</div>
+                    <div class="ranking-info">
+                        <div class="ranking-title">专业排名</div>
+                        <div class="ranking-detail">在${majorRanking.totalStudents}人中排名第${majorRanking.currentRank}</div>
+                    </div>
+                `;
+                rankingList.appendChild(majorItem);
+            }
+        }
+
+
+        // 显示加载状态
+        function showLoading(cardId) {
+            const card = document.getElementById(cardId);
+            const content = card.querySelector('.card-content');
+            content.innerHTML = `
+                <div class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>正在分析中...</p>
+                </div>
+            `;
+        }
+
+        // 显示错误信息
+        function showError(message) {
+            console.error(message);
+            // 可以添加更友好的错误显示
+        }
+    </script>
+</body>
+</html>

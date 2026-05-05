@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API测试页面</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { background: #f8f9fa; padding: 10px; margin: 10px 0; border-left: 4px solid #007bff; }
+        .error { border-left-color: #dc3545; background: #f8d7da; }
+        .success { border-left-color: #28a745; background: #d4edda; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+    </style>
+</head>
+<body>
+    <h1>学情分析系统 API 测试</h1>
+    
+    <div class="section">
+        <h2>1. 登录获取Token</h2>
+        <input type="text" id="username" placeholder="用户名" value="student1">
+        <input type="password" id="password" placeholder="密码" value="password123">
+        <button onclick="login()">登录</button>
+        <div id="loginResult" class="result"></div>
+    </div>
+    
+    <div class="section">
+        <h2>2. 测试权重配置API</h2>
+        <input type="number" id="courseId" placeholder="课程ID" value="4">
+        <button onclick="testWeightConfig()">获取权重配置</button>
+        <div id="weightResult" class="result"></div>
+    </div>
+    
+    <div class="section">
+        <h2>3. 测试学生成绩明细API</h2>
+        <button onclick="testGradeBreakdown()">获取成绩明细</button>
+        <div id="gradeResult" class="result"></div>
+    </div>
+
+    <script>
+        let token = '';
+        
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('loginResult');
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    token = data.token;
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `<strong>登录成功！</strong><br>Token: ${token.substring(0, 50)}...`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `<strong>登录失败：</strong>${data.message || '未知错误'}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<strong>请求失败：</strong>${error.message}`;
+            }
+        }
+        
+        async function testWeightConfig() {
+            const courseId = document.getElementById('courseId').value;
+            const resultDiv = document.getElementById('weightResult');
+            
+            if (!token) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = '请先登录获取Token';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/weight-config/course/${courseId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <strong>权重配置获取成功！</strong><br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `<strong>请求失败：</strong>${data.message || '未知错误'}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<strong>请求失败：</strong>${error.message}`;
+            }
+        }
+        
+        async function testGradeBreakdown() {
+            const courseId = document.getElementById('courseId').value;
+            const resultDiv = document.getElementById('gradeResult');
+            
+            if (!token) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = '请先登录获取Token';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/student-grade-breakdown/course/${courseId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <strong>成绩明细获取成功！</strong><br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `<strong>请求失败：</strong>${data.message || '未知错误'}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<strong>请求失败：</strong>${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

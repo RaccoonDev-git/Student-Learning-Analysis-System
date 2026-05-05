@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成绩查询 - 学情分析系统</title>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>学情分析系统</h1>
+            <nav>
+                <ul>
+                    <li><a href="student.html">主页</a></li>
+                    <li><a href="grade-query.html" class="active">成绩查询</a></li>
+                    <li><a href="course-analysis.html">课程分析</a></li>
+                    <li><a href="../../personal-center.html?from=admin">个人中心</a></li>
+                    <li><a href="index.html" id="logout-link">退出登录</a></li>
+                </ul>
+            </nav>
+        </header>
+        
+        <main>
+            <section class="welcome-section">
+                <h2>成绩查询</h2>
+                <p>在这里您可以查询各科成绩。</p>
+            </section>
+            
+            <section class="dashboard">
+                <div class="card">
+                    <h3>最新成绩</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>科目</th>
+                                <th>成绩</th>
+                                <th>排名</th>
+                                <th>时间</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>数学分析</td>
+                                <td>92</td>
+                                <td>第3名</td>
+                                <td>2023-12-01</td>
+                            </tr>
+                            <tr>
+                                <td>高等代数</td>
+                                <td>88</td>
+                                <td>第5名</td>
+                                <td>2023-12-01</td>
+                            </tr>
+                            <tr>
+                                <td>大学英语</td>
+                                <td>95</td>
+                                <td>第1名</td>
+                                <td>2023-12-01</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="card">
+                    <h3>历史成绩</h3>
+                    <p>您可以查看历史成绩记录：</p>
+                    <ul>
+                        <li><a href="#">期中考试成绩</a></li>
+                        <li><a href="#">月考成绩</a></li>
+                        <li><a href="#">平时成绩</a></li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+        
+        <footer>
+            <p>&copy; 2023 学情分析系统. All rights reserved.</p>
+        </footer>
+    </div>
+    
+    <script>
+        // 检查用户是否已登录
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            
+            if (!user || !user.token) {
+                // 用户未登录，跳转到登录页面
+                alert('请先登录');
+                window.location.href = 'student-login.html';
+                return;
+            }
+            
+            // 显示学生姓名
+            if (user && user.name) {
+                document.querySelector('.welcome-section h2').textContent = user.name + '的成绩查询';
+            }
+            
+            // 退出登录功能
+            document.getElementById('logout-link').addEventListener('click', function(event) {
+                event.preventDefault();
+                // 清除本地存储的用户信息
+                localStorage.removeItem('user');
+                localStorage.removeItem('token');
+                // 跳转到登录页面
+                window.location.href = 'student-login.html';
+            });
+        });
+    </script>
+</body>
+</html>

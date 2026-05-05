@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生主页 - 成绩分析系统</title>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <style>
+        .grade-breakdown-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .weight-config-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .weight-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .weight-item:last-child {
+            border-bottom: none;
+        }
+        
+        .weight-label {
+            font-weight: 500;
+            color: #495057;
+        }
+        
+        .weight-value {
+            font-weight: 600;
+            color: #007bff;
+        }
+        
+        .default-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .default-warning .icon {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+        
+        .grade-section {
+            margin: 20px 0;
+        }
+        
+        .grade-section h4 {
+            color: #495057;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #007bff;
+        }
+        
+        .grade-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .grade-table th,
+        .grade-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .grade-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .grade-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .score-cell {
+            font-weight: 600;
+            color: #28a745;
+        }
+        
+        .summary-section {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .summary-item {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .summary-item .label {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+        
+        .summary-item .value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #007bff;
+        }
+        
+        .total-score {
+            background: #28a745;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .total-score .label {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .total-score .value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>学生成绩分析系统</h1>
+            <div class="user-info">
+                <span id="studentName">学生</span>
+                <button onclick="logout()" class="btn btn-outline">退出登录</button>
+            </div>
+        </header>
+
+        <nav class="nav">
+            <a href="#" class="nav-link active" onclick="showSection('dashboard')">首页</a>
+            <a href="#" class="nav-link" onclick="showSection('grades')">成绩查询</a>
+            <a href="#" class="nav-link" onclick="showSection('analysis')">成绩分析</a>
+        </nav>
+
+        <main class="main">
+            <!-- 首页 -->
+            <section id="dashboard" class="section active">
+                <h2>欢迎回来，<span id="welcomeStudentName">学生</span>！</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>总课程数</h3>
+                        <p id="totalCourses">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>平均成绩</h3>
+                        <p id="averageGrade">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>最高成绩</h3>
+                        <p id="highestGrade">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>最低成绩</h3>
+                        <p id="lowestGrade">0</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 成绩查询 -->
+            <section id="grades" class="section">
+                <h2>成绩查询</h2>
+                <div class="grade-breakdown-container" id="gradeBreakdownContainer">
+                    <p>请选择课程查看成绩明细</p>
+                </div>
+            </section>
+
+            <!-- 成绩分析 -->
+            <section id="analysis" class="section">
+                <h2>成绩分析</h2>
+                <div class="chart-container">
+                    <canvas id="gradeChart"></canvas>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let currentStudent = null;
+        let courses = [];
+        let gradeChart = null;
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadStudentData();
+        });
+
+        // 检查认证状态
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'student-login.html';
+                return;
+            }
+            
+            // 解析token获取用户信息
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                currentStudent = {
+                    id: payload.userId,
+                    username: payload.sub
+                };
+                document.getElementById('studentName').textContent = currentStudent.username;
+                document.getElementById('welcomeStudentName').textContent = currentStudent.username;
+            } catch (e) {
+                console.error('Token解析失败:', e);
+                localStorage.removeItem('token');
+                window.location.href = 'student-login.html';
+            }
+        }
+
+        // 加载学生数据
+        async function loadStudentData() {
+            try {
+                await loadCourses();
+                await loadGradeStatistics();
+                await loadGradeAnalysis();
+            } catch (error) {
+                console.error('加载学生数据失败:', error);
+            }
+        }
+
+        // 加载课程列表
+        async function loadCourses() {
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch('/api/student-grade-breakdown', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const gradeBreakdowns = await response.json();
+                    courses = gradeBreakdowns;
+                    
+                    // 更新课程数量
+                    document.getElementById('totalCourses').textContent = courses.length;
+                    
+                    // 显示课程选择
+                    showCourseSelection();
+                } else {
+                    console.error('加载课程失败:', response.status);
+                }
+            } catch (error) {
+                console.error('加载课程失败:', error);
+            }
+        }
+
+        // 显示课程选择
+        function showCourseSelection() {
+            const container = document.getElementById('gradeBreakdownContainer');
+            
+            if (courses.length === 0) {
+                container.innerHTML = '<p>暂无课程数据</p>';
+                return;
+            }
+            
+            let html = '<div class="course-selection"><h3>选择课程查看成绩明细</h3><div class="course-list">';
+            
+            courses.forEach(course => {
+                html += `
+                    <div class="course-item" onclick="showGradeBreakdown(${course.courseId})">
+                        <h4>${course.courseName}</h4>
+                        <p>总成绩: ${course.totalScore}分</p>
+                        ${course.isDefaultWeight ? '<span class="default-badge">默认权重</span>' : ''}
+                    </div>
+                `;
+            });
+            
+            html += '</div></div>';
+            container.innerHTML = html;
+        }
+
+        // 显示成绩明细
+        function showGradeBreakdown(courseId) {
+            const course = courses.find(c => c.courseId === courseId);
+            if (!course) return;
+            
+            const container = document.getElementById('gradeBreakdownContainer');
+            
+            let html = `
+                <div class="grade-breakdown">
+                    <h3>${course.courseName} - 成绩明细</h3>
+                    
+                    <!-- 权重配置 -->
+                    <div class="weight-config-section">
+                        <h4>权重配置</h4>
+                        ${course.isDefaultWeight ? 
+                            '<div class="default-warning"><span class="icon">⚠️</span>使用默认权重配置，教师尚未设置</div>' : 
+                            ''
+                        }
+                        <div class="weight-item">
+                            <span class="weight-label">课堂表现</span>
+                            <span class="weight-value">${course.attendanceWeight}%</span>
+                        </div>
+                        <div class="weight-item">
+                            <span class="weight-label">作业</span>
+                            <span class="weight-value">${course.homeworkWeight}%</span>
+                        </div>
+                        <div class="weight-item">
+                            <span class="weight-label">实验</span>
+                            <span class="weight-value">${course.labWeight}%</span>
+                        </div>
+                        <div class="weight-item">
+                            <span class="weight-label">小测验</span>
+                            <span class="weight-value">${course.quizWeight}%</span>
+                        </div>
+                        <div class="weight-item">
+                            <span class="weight-label">期中考试</span>
+                            <span class="weight-value">${course.midtermWeight}%</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 成绩明细 -->
+                    <div class="grade-details">
+                        ${buildGradeSection('课堂表现', course.attendanceGrades, course.attendanceAverage, course.attendanceWeighted)}
+                        ${buildGradeSection('作业', course.homeworkGrades, course.homeworkAverage, course.homeworkWeighted)}
+                        ${buildGradeSection('实验', course.labGrades, course.labAverage, course.labWeighted)}
+                        ${buildGradeSection('小测验', course.quizGrades, course.quizAverage, course.quizWeighted)}
+                        ${buildGradeSection('期中考试', course.midtermGrades, course.midtermAverage, course.midtermWeighted)}
+                    </div>
+                    
+                    <!-- 成绩汇总 -->
+                    <div class="summary-section">
+                        <h4>成绩汇总</h4>
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <div class="label">课堂表现</div>
+                                <div class="value">${course.attendanceAverage}分</div>
+                                <small>加权: ${course.attendanceWeighted}分</small>
+                            </div>
+                            <div class="summary-item">
+                                <div class="label">作业</div>
+                                <div class="value">${course.homeworkAverage}分</div>
+                                <small>加权: ${course.homeworkWeighted}分</small>
+                            </div>
+                            <div class="summary-item">
+                                <div class="label">实验</div>
+                                <div class="value">${course.labAverage}分</div>
+                                <small>加权: ${course.labWeighted}分</small>
+                            </div>
+                            <div class="summary-item">
+                                <div class="label">小测验</div>
+                                <div class="value">${course.quizAverage}分</div>
+                                <small>加权: ${course.quizWeighted}分</small>
+                            </div>
+                            <div class="summary-item">
+                                <div class="label">期中考试</div>
+                                <div class="value">${course.midtermAverage}分</div>
+                                <small>加权: ${course.midtermWeighted}分</small>
+                            </div>
+                        </div>
+                        
+                        <div class="total-score">
+                            <div class="label">总成绩</div>
+                            <div class="value">${course.totalScore}分</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <button onclick="showCourseSelection()" class="btn btn-secondary">返回课程列表</button>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        // 构建成绩部分HTML
+        function buildGradeSection(title, grades, average, weighted) {
+            if (!grades || grades.length === 0) {
+                return `
+                    <div class="grade-section">
+                        <h4>${title}</h4>
+                        <p>暂无成绩记录</p>
+                    </div>
+                `;
+            }
+            
+            let html = `
+                <div class="grade-section">
+                    <h4>${title} (平均: ${average}分, 加权: ${weighted}分)</h4>
+                    <table class="grade-table">
+                        <thead>
+                            <tr>
+                                <th>考试名称</th>
+                                <th>成绩</th>
+                                <th>考试日期</th>
+                                <th>备注</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            grades.forEach(grade => {
+                html += `
+                    <tr>
+                        <td>${grade.examName || '未命名'}</td>
+                        <td class="score-cell">${grade.score}分</td>
+                        <td>${grade.examDate || '-'}</td>
+                        <td>${grade.description || '-'}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            return html;
+        }
+
+        // 加载成绩统计
+        async function loadGradeStatistics() {
+            if (courses.length === 0) return;
+            
+            const totalScores = courses.map(c => parseFloat(c.totalScore));
+            const average = totalScores.reduce((sum, score) => sum + score, 0) / totalScores.length;
+            const highest = Math.max(...totalScores);
+            const lowest = Math.min(...totalScores);
+            
+            document.getElementById('averageGrade').textContent = average.toFixed(1);
+            document.getElementById('highestGrade').textContent = highest.toFixed(1);
+            document.getElementById('lowestGrade').textContent = lowest.toFixed(1);
+        }
+
+        // 加载成绩分析图表
+        async function loadGradeAnalysis() {
+            if (courses.length === 0) return;
+            
+            const ctx = document.getElementById('gradeChart').getContext('2d');
+            
+            if (gradeChart) {
+                gradeChart.destroy();
+            }
+            
+            gradeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: courses.map(c => c.courseName),
+                    datasets: [{
+                        label: '总成绩',
+                        data: courses.map(c => parseFloat(c.totalScore)),
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // 显示指定部分
+        function showSection(sectionId) {
+            // 隐藏所有部分
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // 移除所有导航链接的活动状态
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // 显示指定部分
+            document.getElementById(sectionId).classList.add('active');
+            
+            // 激活对应导航链接
+            event.target.classList.add('active');
+        }
+
+        // 退出登录
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = 'student-login.html';
+        }
+    </script>
+
+    <style>
+        .course-selection {
+            text-align: center;
+        }
+        
+        .course-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .course-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .course-item:hover {
+            background: #e9ecef;
+            border-color: #007bff;
+        }
+        
+        .course-item h4 {
+            margin: 0 0 10px 0;
+            color: #495057;
+        }
+        
+        .course-item p {
+            margin: 0;
+            color: #6c757d;
+        }
+        
+        .default-badge {
+            background: #ffc107;
+            color: #856404;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-top: 8px;
+            display: inline-block;
+        }
+    </style>
+</body>
+</html>

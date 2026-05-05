@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程分析 - 学情分析系统</title>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>学情分析系统</h1>
+            <nav>
+                <ul>
+                    <li><a href="student.html">主页</a></li>
+                    <li><a href="grade-query.html">成绩查询</a></li>
+                    <li><a href="course-analysis.html" class="active">课程分析</a></li>
+                    <li><a href="../../personal-center.html?from=admin">个人中心</a></li>
+                    <li><a href="index.html" id="logout-link">退出登录</a></li>
+                </ul>
+            </nav>
+        </header>
+        
+        <main>
+            <section class="welcome-section">
+                <h2>课程分析</h2>
+                <p>在这里您可以查看各科目的学习情况分析。</p>
+            </section>
+            
+            <section class="dashboard">
+                <div class="card">
+                    <h3>学习进度</h3>
+                    <p>数学分析: 已完成80%</p>
+                    <p>高等代数: 已完成75%</p>
+                    <p>大学英语: 已完成90%</p>
+                </div>
+                
+                <div class="card">
+                    <h3>薄弱环节</h3>
+                    <p>根据您的成绩分析，以下知识点需要加强：</p>
+                    <ul>
+                        <li>微积分中的极限概念</li>
+                        <li>线性代数中的矩阵运算</li>
+                        <li>英语语法中的时态</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+        
+        <footer>
+            <p>&copy; 2023 学情分析系统. All rights reserved.</p>
+        </footer>
+    </div>
+    
+    <script>
+        // 检查用户是否已登录
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            
+            if (!user || !user.token) {
+                // 用户未登录，跳转到登录页面
+                alert('请先登录');
+                window.location.href = 'student-login.html';
+                return;
+            }
+            
+            // 显示学生姓名
+            if (user && user.name) {
+                document.querySelector('.welcome-section h2').textContent = user.name + '的课程分析';
+            }
+            
+            // 退出登录功能
+            document.getElementById('logout-link').addEventListener('click', function(event) {
+                event.preventDefault();
+                // 清除本地存储的用户信息
+                localStorage.removeItem('user');
+                localStorage.removeItem('token');
+                // 跳转到登录页面
+                window.location.href = 'student-login.html';
+            });
+        });
+    </script>
+</body>
+</html>

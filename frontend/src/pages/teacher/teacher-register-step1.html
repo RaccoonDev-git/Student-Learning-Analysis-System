@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教师注册 - 步骤1 - 学情分析系统</title>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <h1>学情分析</h1>
+            </div>
+            <div class="header-buttons">
+                <button class="nav-btn" onclick="window.location.href='index.html'">返回首页</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="login-container">
+            <section class="login-section">
+                <h2>教师注册</h2>
+                <form id="teacher-register-step1-form">
+                    <div class="form-group">
+                        <select id="school-name" required>
+                            <option value="">请选择学校</option>
+                            <option value="清华大学">清华大学</option>
+                            <option value="北京大学">北京大学</option>
+                            <option value="复旦大学">复旦大学</option>
+                            <option value="上海交通大学">上海交通大学</option>
+                            <option value="浙江大学">浙江大学</option>
+                            <option value="南京大学">南京大学</option>
+                            <option value="中国科学技术大学">中国科学技术大学</option>
+                            <option value="武汉大学">武汉大学</option>
+                            <option value="华中科技大学">华中科技大学</option>
+                            <option value="中山大学">中山大学</option>
+                            <option value="上海第二工业大学">上海第二工业大学</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="teacher-id" placeholder="请输入您的教师工号" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn primary-btn">下一步</button>
+                    </div>
+                </form>
+                <div class="form-links">
+                        <a href="../../../teacher-login.html" class="form-link">已有账号？立即登录</a>
+                    </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p class="system-description">数据驱动教学决策·AI赋能个性化学习</p>
+            <p>&copy; 2023 学情分析系统. 保留所有权利.</p>
+            <p class="support-info">技术支持单位：XXX科技有限公司</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化Select2插件
+            $('#school-name').select2({
+                placeholder: "请选择学校",
+                allowClear: true
+            });
+            
+            const step1Form = document.getElementById('teacher-register-step1-form');
+            
+            step1Form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                const schoolName = document.getElementById('school-name').value;
+                const teacherId = document.getElementById('teacher-id').value;
+                
+                if (schoolName && teacherId) {
+                    // 将信息保存到sessionStorage中
+                    sessionStorage.setItem('teacherSchool', schoolName);
+                    sessionStorage.setItem('teacherId', teacherId);
+                    
+                    // 跳转到第二步
+                    window.location.href = 'teacher-register-step2.html';
+                } else {
+                    alert('请填写所有必填字段');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
